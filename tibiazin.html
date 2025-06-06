@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tibia: Winter Wolf Fur Hunting</title>
+    <style>
+        /* Estilos gerais */
+        :root {
+            --primary-color: #4a2e7a;
+            --secondary-color: #6c3483;
+            --accent-color: #9b59b6;
+            --light-color: #f5f5f5;
+            --dark-color: #333;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Cabeçalho */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Controles */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .btn.active {
+            background-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(155, 89, 182, 0.5);
+        }
+
+        .search-container {
+            flex-grow: 1;
+            max-width: 400px;
+        }
+
+        #search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        #search-input:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(155, 89, 182, 0.3);
+        }
+
+        /* Cards */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .card-header h2 {
+            font-size: 1.3rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-header .edit-name {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .card-header .edit-name:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .label {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .value {
+            color: var(--secondary-color);
+            font-weight: 500;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .editable {
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+
+        .editable:hover {
+            background-color: #f0f0f0;
+        }
+
+        .editable:focus {
+            background-color: #f0f0f0;
+            outline: 2px solid var(--accent-color);
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .btn-increment, .btn-decrement {
+            padding: 8px 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            flex: 1;
+            margin: 0 5px;
+        }
+
+        .btn-increment {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-decrement {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-increment:hover, .btn-decrement:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-remove {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 8px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .btn-remove:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* Resumo */
+        .summary-container {
+            margin-top: 30px;
+        }
+
+        .summary-box {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .summary-box h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        #summary-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        #summary-content p {
+            font-size: 1.1rem;
+        }
+
+        #summary-content span {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+
+        /* Adicionar novo personagem */
+        .add-char-container {
+            margin: 30px 0;
+        }
+
+        .add-char-box {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .add-char-box h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        .add-char-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(155, 89, 182, 0.3);
+        }
+
+        .btn-add-char {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .btn-add-char:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* Modal de edição */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 80%;
+            max-width: 500px;
+            animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .close-modal {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: var(--dark-color);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Instruções */
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 4px;
+        }
+
+        .instructions h4 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .instructions p {
+            margin-bottom: 10px;
+        }
+
+        .instructions code {
+            background-color: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .instructions-toggle {
+            cursor: pointer;
+            color: var(--accent-color);
+            text-decoration: underline;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .button-group {
+                justify-content: center;
+            }
+            
+            .search-container {
+                max-width: 100%;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            #summary-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .add-char-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tibia: Winter Wolf Fur Hunting</h1>
+        </header>
+        
+        <div class="controls">
+            <div class="button-group">
+                <button id="btn-all" class="btn active">Todos</button>
+                <button id="btn-with-items" class="btn">Com Itens</button>
+                <button id="btn-without-items" class="btn">Sem Itens</button>
+            </div>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Buscar personagem...">
+            </div>
+        </div>
+        
+        <div class="add-char-container">
+            <div class="add-char-box">
+                <h3>Adicionar Novo Personagem</h3>
+                <div class="add-char-form">
+                    <div class="form-group">
+                        <label for="new-char-name">Nome do Personagem:</label>
+                        <input type="text" id="new-char-name" placeholder="Ex: Servidor: Nome do Personagem">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-char-price">Preço:</label>
+                        <input type="text" id="new-char-price" placeholder="Ex: 8,000">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-char-tc-price">Preço TC:</label>
+                        <input type="text" id="new-char-tc-price" placeholder="Ex: 33000">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-char-goal">Meta (Para 25 precisa de):</label>
+                        <input type="text" id="new-char-goal" placeholder="Ex: 681,000">
+                    </div>
+                </div>
+                <button id="btn-add-char" class="btn-add-char">Adicionar Personagem</button>
+            </div>
+        </div>
+        
+        <div class="cards-container" id="cards-container">
+            <!-- Cards serão gerados dinamicamente pelo JavaScript -->
+        </div>
+        
+        <div class="summary-container">
+            <div class="summary-box">
+                <h3>Resumo</h3>
+                <div id="summary-content">
+                    <p><strong>Total de Personagens:</strong> <span id="total-chars">0</span></p>
+                    <p><strong>Total de Itens:</strong> <span id="total-items">0</span></p>
+                    <p><strong>Valor Total (GP):</strong> <span id="total-value">0</span></p>
+                    <p><strong>Total de TC:</strong> <span id="total-tc">0</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions" id="instructions">
+            <h4>Instruções para Google Sites</h4>
+            <p>Para incorporar esta página no Google Sites:</p>
+            <p>1. No Google Sites, clique em "Inserir" > "Incorporar" > "Incorporar código"</p>
+            <p>2. Copie todo o conteúdo deste arquivo HTML</p>
+            <p>3. Cole no campo de código do Google Sites</p>
+            <p>4. Clique em "Inserir"</p>
+            <p><span class="instructions-toggle" id="toggle-instructions">Ocultar instruções</span></p>
+        </div>
+    </div>
+    
+    <!-- Modal de edição -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Personagem</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="edit-char-name">Nome do Personagem:</label>
+                    <input type="text" id="edit-char-name">
+                </div>
+                <div class="form-group">
+                    <label for="edit-char-qty">Quantidade Atual:</label>
+                    <input type="text" id="edit-char-qty">
+                </div>
+                <div class="form-group">
+                    <label for="edit-char-price">Preço:</label>
+                    <input type="text" id="edit-char-price">
+                </div>
+                <div class="form-group">
+                    <label for="edit-char-tc-price">Preço TC:</label>
+                    <input type="text" id="edit-char-tc-price">
+                </div>
+                <div class="form-group">
+                    <label for="edit-char-goal">Meta (Para 25 precisa de):</label>
+                    <input type="text" id="edit-char-goal">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-save-edit" class="btn">Salvar</button>
+                <button id="btn-cancel-edit" class="btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Dados iniciais da planilha
+        let characterData = [
+            {
+                "Mundo": "Collabra: Zwakka Ironman",
+                "Quantidade Atual": "2",
+                "Preço": "11,305",
+                "Total": "22,610",
+                "Preço TC": "41237",
+                "Quantas TC": "0.5482940078",
+                "Para 25 precisa de": "1,030,925",
+                "Faltam": "1,008,315"
+            },
+            {
+                "Mundo": "Rasteibra: Barba Medieval",
+                "Quantidade Atual": "0",
+                "Preço": "11,319",
+                "Total": "0",
+                "Preço TC": "34840",
+                "Quantas TC": "0",
+                "Para 25 precisa de": "871,000",
+                "Faltam": "871,000"
+            },
+            {
+                "Mundo": "Lutabra: Don Fachinetto",
+                "Quantidade Atual": "0",
+                "Preço": "6,368",
+                "Total": "0",
+                "Preço TC": "35040",
+                "Quantas TC": "0",
+                "Para 25 precisa de": "876,000",
+                "Faltam": "876,000"
+            },
+            {
+                "Mundo": "Utobra: Lady Nostradamus",
+                "Quantidade Atual": "6",
+                "Preço": "8,000",
+                "Total": "192,000",
+                "Preço TC": "33000",
+                "Quantas TC": "10.18181818",
+                "Para 25 precisa de": "681,000",
+                "Faltam": "489,000"
+            },
+            {
+                "Mundo": "Bombra: Mystica Alchemist",
+                "Quantidade Atual": "0",
+                "Preço": "3,331",
+                "Total": "0",
+                "Preço TC": "34000",
+                "Quantas TC": "0",
+                "Para 25 precisa de": "850,000",
+                "Faltam": "850,000"
+            },
+            {
+                "Mundo": "Wintera: Rivaldinho",
+                "Quantidade Atual": "0",
+                "Preço": "2,209",
+                "Total": "0",
+                "Preço TC": "34665",
+                "Quantas TC": "0",
+                "Para 25 precisa de": "866625",
+                "Faltam": "866625"
+            }
+        ];
+
+        // Elementos DOM
+        const cardsContainer = document.getElementById('cards-container');
+        const btnAll = document.getElementById('btn-all');
+        const btnWithItems = document.getElementById('btn-with-items');
+        const btnWithoutItems = document.getElementById('btn-without-items');
+        const searchInput = document.getElementById('search-input');
+        const totalCharsElement = document.getElementById('total-chars');
+        const totalItemsElement = document.getElementById('total-items');
+        const totalValueElement = document.getElementById('total-value');
+        const totalTcElement = document.getElementById('total-tc');
+        const toggleInstructions = document.getElementById('toggle-instructions');
+        const instructionsDiv = document.getElementById('instructions');
+        const btnAddChar = document.getElementById('btn-add-char');
+        const newCharName = document.getElementById('new-char-name');
+        const newCharPrice = document.getElementById('new-char-price');
+        const newCharTcPrice = document.getElementById('new-char-tc-price');
+        const newCharGoal = document.getElementById('new-char-goal');
+        const editModal = document.getElementById('edit-modal');
+        const closeModal = document.querySelector('.close-modal');
+        const btnSaveEdit = document.getElementById('btn-save-edit');
+        const btnCancelEdit = document.getElementById('btn-cancel-edit');
+        const editCharName = document.getElementById('edit-char-name');
+        const editCharQty = document.getElementById('edit-char-qty');
+        const editCharPrice = document.getElementById('edit-char-price');
+        const editCharTcPrice = document.getElementById('edit-char-tc-price');
+        const editCharGoal = document.getElementById('edit-char-goal');
+
+        // Estado atual do filtro
+        let currentFilter = 'all';
+        let searchTerm = '';
+        let currentEditingChar = null;
+
+        // Função para formatar números com separadores de milhares
+        function formatNumber(number) {
+            // Verifica se o número é uma string e contém vírgula como separador decimal
+            if (typeof number === 'string' && number.includes(',')) {
+                // Substitui vírgula por ponto para converter para número
+                number = parseFloat(number.replace(/\./g, '').replace(',', '.'));
+            }
+            
+            // Se não for um número válido, retorna 0 formatado
+            if (isNaN(number)) return '0';
+            
+            // Formata o número com separador de milhares
+            return new Intl.NumberFormat('pt-BR').format(number);
+        }
+
+        // Função para converter string formatada para número
+        function parseFormattedNumber(formattedNumber) {
+            if (typeof formattedNumber === 'number') return formattedNumber;
+            if (!formattedNumber) return 0;
+            
+            // Remove pontos e substitui vírgula por ponto
+            return parseFloat(formattedNumber.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+
+        // Função para renderizar os cards com base nos filtros atuais
+        function renderCards() {
+            // Limpa o container de cards
+            cardsContainer.innerHTML = '';
+            
+            // Filtra os dados com base no filtro atual e termo de busca
+            const filteredData = characterData.filter(char => {
+                const matchesFilter = 
+                    currentFilter === 'all' || 
+                    (currentFilter === 'with-items' && parseInt(char['Quantidade Atual']) > 0) ||
+                    (currentFilter === 'without-items' && parseInt(char['Quantidade Atual']) === 0);
+                    
+                const matchesSearch = 
+                    searchTerm === '' || 
+                    char['Mundo'].toLowerCase().includes(searchTerm.toLowerCase());
+                    
+                return matchesFilter && matchesSearch;
+            });
+            
+            // Cria um card para cada personagem filtrado
+            filteredData.forEach(char => {
+                const card = createCharacterCard(char);
+                cardsContainer.appendChild(card);
+            });
+            
+            // Atualiza o resumo com base nos dados filtrados
+            updateSummary(filteredData);
+        }
+
+        // Função para criar um card de personagem
+        function createCharacterCard(char) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            // Cabeçalho do card
+            const cardHeader = document.createElement('div');
+            cardHeader.className = 'card-header';
+            
+            const charName = document.createElement('h2');
+            charName.textContent = char['Mundo'];
+            cardHeader.appendChild(charName);
+            
+            const editNameBtn = document.createElement('button');
+            editNameBtn.className = 'edit-name';
+            editNameBtn.innerHTML = '✏️';
+            editNameBtn.title = 'Editar personagem';
+            editNameBtn.addEventListener('click', () => openEditModal(char));
+            cardHeader.appendChild(editNameBtn);
+            
+            card.appendChild(cardHeader);
+            
+            // Corpo do card
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body';
+            
+            // Quantidade Atual
+            const qtyRow = createInfoRow('Quantidade Atual:', char['Quantidade Atual']);
+            cardBody.appendChild(qtyRow);
+            
+            // Preço
+            const priceRow = createInfoRow('Preço:', char['Preço']);
+            cardBody.appendChild(priceRow);
+            
+            // Total
+            const totalRow = createInfoRow('Total:', char['Total']);
+            cardBody.appendChild(totalRow);
+            
+            // Preço TC
+            const tcPriceRow = createInfoRow('Preço TC:', char['Preço TC']);
+            cardBody.appendChild(tcPriceRow);
+            
+            // Quantas TC
+            const tcQtyRow = createInfoRow('Quantas TC:', char['Quantas TC']);
+            cardBody.appendChild(tcQtyRow);
+            
+            // Para 25 precisa de
+            const goalRow = createInfoRow('Para 25 precisa de:', char['Para 25 precisa de']);
+            cardBody.appendChild(goalRow);
+            
+            // Faltam
+            const remainingRow = createInfoRow('Faltam:', char['Faltam']);
+            cardBody.appendChild(remainingRow);
+            
+            card.appendChild(cardBody);
+            
+            // Rodapé do card
+            const cardFooter = document.createElement('div');
+            cardFooter.className = 'card-footer';
+            
+            const btnIncrement = document.createElement('button');
+            btnIncrement.className = 'btn-increment';
+            btnIncrement.textContent = '+1';
+            btnIncrement.addEventListener('click', () => incrementItem(char['Mundo']));
+            cardFooter.appendChild(btnIncrement);
+            
+            const btnDecrement = document.createElement('button');
+            btnDecrement.className = 'btn-decrement';
+            btnDecrement.textContent = '-1';
+            btnDecrement.addEventListener('click', () => decrementItem(char['Mundo']));
+            cardFooter.appendChild(btnDecrement);
+            
+            card.appendChild(cardFooter);
+            
+            // Botão de remover
+            const btnRemove = document.createElement('button');
+            btnRemove.className = 'btn-remove';
+            btnRemove.textContent = 'Remover Personagem';
+            btnRemove.addEventListener('click', () => removeCharacter(char['Mundo']));
+            card.appendChild(btnRemove);
+            
+            return card;
+        }
+
+        // Função para criar uma linha de informação
+        function createInfoRow(label, value) {
+            const row = document.createElement('div');
+            row.className = 'info-row';
+            
+            const labelSpan = document.createElement('span');
+            labelSpan.className = 'label';
+            labelSpan.textContent = label;
+            row.appendChild(labelSpan);
+            
+            const valueSpan = document.createElement('span');
+            valueSpan.className = 'value editable';
+            valueSpan.textContent = value;
+            valueSpan.contentEditable = true;
+            valueSpan.addEventListener('blur', function() {
+                updateCharacterData(label, this.textContent, row);
+            });
+            valueSpan.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.blur();
+                }
+            });
+            row.appendChild(valueSpan);
+            
+            return row;
+        }
+
+        // Função para atualizar os dados do personagem quando um campo é editado
+        function updateCharacterData(label, newValue, row) {
+            // Encontra o card pai
+            const card = row.closest('.card');
+            // Encontra o nome do personagem no cabeçalho do card
+            const charName = card.querySelector('.card-header h2').textContent;
+            // Encontra o índice do personagem no array de dados
+            const charIndex = characterData.findIndex(char => char['Mundo'] === charName);
+            
+            if (charIndex !== -1) {
+                // Mapeia o label para a chave correspondente no objeto de dados
+                let key;
+                switch (label) {
+                    case 'Quantidade Atual:':
+                        key = 'Quantidade Atual';
+                        break;
+                    case 'Preço:':
+                        key = 'Preço';
+                        break;
+                    case 'Total:':
+                        key = 'Total';
+                        break;
+                    case 'Preço TC:':
+                        key = 'Preço TC';
+                        break;
+                    case 'Quantas TC:':
+                        key = 'Quantas TC';
+                        break;
+                    case 'Para 25 precisa de:':
+                        key = 'Para 25 precisa de';
+                        break;
+                    case 'Faltam:':
+                        key = 'Faltam';
+                        break;
+                    default:
+                        return;
+                }
+                
+                // Atualiza o valor no objeto de dados
+                characterData[charIndex][key] = newValue;
+                
+                // Se o campo editado for Quantidade Atual ou Preço, recalcula os valores derivados
+                if (key === 'Quantidade Atual' || key === 'Preço' || key === 'Preço TC' || key === 'Para 25 precisa de') {
+                    recalculateCharacterValues(charIndex);
+                }
+                
+                // Salva os dados atualizados
+                saveData();
+                
+                // Renderiza novamente os cards para atualizar todos os valores
+                renderCards();
+            }
+        }
+
+        // Função para recalcular os valores derivados de um personagem
+        function recalculateCharacterValues(charIndex) {
+            const char = characterData[charIndex];
+            
+            // Converte os valores para números
+            const qty = parseInt(char['Quantidade Atual']) || 0;
+            const price = parseFormattedNumber(char['Preço']);
+            const priceTC = parseFormattedNumber(char['Preço TC']);
+            const goal = parseFormattedNumber(char['Para 25 precisa de']);
+            
+            // Calcula o total
+            const total = qty * price;
+            char['Total'] = total.toString();
+            
+            // Calcula as TCs
+            const tc = total / priceTC;
+            char['Quantas TC'] = tc.toString();
+            
+            // Calcula o que falta
+            const remaining = goal - total;
+            char['Faltam'] = remaining.toString();
+        }
+
+        // Função para incrementar a quantidade de itens
+        function incrementItem(charName) {
+            const charIndex = characterData.findIndex(char => char['Mundo'] === charName);
+            
+            if (charIndex !== -1) {
+                // Incrementa a quantidade
+                const currentQty = parseInt(characterData[charIndex]['Quantidade Atual']) || 0;
+                characterData[charIndex]['Quantidade Atual'] = (currentQty + 1).toString();
+                
+                // Recalcula os valores derivados
+                recalculateCharacterValues(charIndex);
+                
+                // Atualiza a interface
+                saveData();
+                renderCards();
+            }
+        }
+
+        // Função para decrementar a quantidade de itens
+        function decrementItem(charName) {
+            const charIndex = characterData.findIndex(char => char['Mundo'] === charName);
+            
+            if (charIndex !== -1) {
+                // Decrementa a quantidade, mas não permite valores negativos
+                const currentQty = parseInt(characterData[charIndex]['Quantidade Atual']) || 0;
+                if (currentQty > 0) {
+                    characterData[charIndex]['Quantidade Atual'] = (currentQty - 1).toString();
+                    
+                    // Recalcula os valores derivados
+                    recalculateCharacterValues(charIndex);
+                    
+                    // Atualiza a interface
+                    saveData();
+                    renderCards();
+                }
+            }
+        }
+
+        // Função para remover um personagem
+       function removeCharacter() {
+    const name = prompt("Digite o nome exato do personagem a ser removido:");
+
+    if (!name) {
+        alert("Por favor, insira o nome do personagem.");
+        return;
+    }
+
+    // Verifica se o personagem existe no array
+    const charIndex = characterData.findIndex(char => char['Mundo'] === name);
+
+    if (charIndex === -1) {
+        alert("Personagem não encontrado.");
+        return;
+    }
+
+    // Confirma remoção antes de excluir
+    if (!confirm(`Tem certeza que deseja remover "${name}"?`)) {
+        return;
+    }
+
+    // Remove o personagem do array
+    characterData.splice(charIndex, 1);
+
+    // Atualiza o localStorage
+    localStorage.setItem('tibiaWinterWolfData', JSON.stringify(characterData));
+
+    // Re-renderiza os cards
+    renderCards();
+
+    alert(`Personagem "${name}" removido com sucesso!`);
+}
+        // Função para adicionar um novo personagem
+        function addCharacter() {
+            const name = newCharName.value.trim();
+            const price = newCharPrice.value.trim();
+            const tcPrice = newCharTcPrice.value.trim();
+            const goal = newCharGoal.value.trim();
+            
+            if (!name) {
+                alert('Por favor, insira o nome do personagem.');
+                return;
+            }
+            
+            if (!price) {
+                alert('Por favor, insira o preço.');
+                return;
+            }
+            
+            if (!tcPrice) {
+                alert('Por favor, insira o preço TC.');
+                return;
+            }
+            
+            if (!goal) {
+                alert('Por favor, insira a meta (Para 25 precisa de).');
+                return;
+            }
+            
+            // Verifica se já existe um personagem com o mesmo nome
+            if (characterData.some(char => char['Mundo'] === name)) {
+                alert('Já existe um personagem com este nome.');
+                return;
+            }
+            
+            // Cria o novo personagem
+            const newChar = {
+                "Mundo": name,
+                "Quantidade Atual": "0",
+                "Preço": price,
+                "Total": "0",
+                "Preço TC": tcPrice,
+                "Quantas TC": "0",
+                "Para 25 precisa de": goal,
+                "Faltam": goal
+            };
+            
+            // Adiciona o novo personagem ao array
+            characterData.push(newChar);
+            
+            // Limpa os campos do formulário
+            newCharName.value = '';
+            newCharPrice.value = '';
+            newCharTcPrice.value = '';
+            newCharGoal.value = '';
+            
+            // Atualiza a interface
+            saveData();
+            renderCards();
+        }
+
+        // Função para abrir o modal de edição
+        function openEditModal(char) {
+            currentEditingChar = char;
+            
+            // Preenche os campos do modal com os dados do personagem
+            editCharName.value = char['Mundo'];
+            editCharQty.value = char['Quantidade Atual'];
+            editCharPrice.value = char['Preço'];
+            editCharTcPrice.value = char['Preço TC'];
+            editCharGoal.value = char['Para 25 precisa de'];
+            
+            // Exibe o modal
+            editModal.style.display = 'block';
+        }
+
+        // Função para fechar o modal de edição
+        function closeEditModal() {
+            editModal.style.display = 'none';
+            currentEditingChar = null;
+        }
+
+        // Função para salvar as alterações do modal de edição
+        function saveEditChanges() {
+            if (!currentEditingChar) return;
+            
+            const oldName = currentEditingChar['Mundo'];
+            const newName = editCharName.value.trim();
+            
+            // Verifica se o novo nome já existe (exceto se for o mesmo personagem)
+            if (newName !== oldName && characterData.some(char => char['Mundo'] === newName)) {
+                alert('Já existe um personagem com este nome.');
+                return;
+            }
+            
+            // Encontra o índice do personagem no array
+            const charIndex = characterData.findIndex(char => char['Mundo'] === oldName);
+            
+            if (charIndex !== -1) {
+                // Atualiza os dados do personagem
+                characterData[charIndex]['Mundo'] = newName;
+                characterData[charIndex]['Quantidade Atual'] = editCharQty.value;
+                characterData[charIndex]['Preço'] = editCharPrice.value;
+                characterData[charIndex]['Preço TC'] = editCharTcPrice.value;
+                characterData[charIndex]['Para 25 precisa de'] = editCharGoal.value;
+                
+                // Recalcula os valores derivados
+                recalculateCharacterValues(charIndex);
+                
+                // Atualiza a interface
+                saveData();
+                renderCards();
+                
+                // Fecha o modal
+                closeEditModal();
+            }
+        }
+
+        // Função para salvar os dados (usando localStorage para persistência)
+        function saveData() {
+            try {
+                localStorage.setItem('tibiaWinterWolfData', JSON.stringify(characterData));
+            } catch (error) {
+                console.error('Erro ao salvar os dados:', error);
+            }
+        }
+
+        // Função para carregar os dados salvos
+        function loadSavedData() {
+            try {
+                const savedData = localStorage.getItem('tibiaWinterWolfData');
+                if (savedData) {
+                    characterData = JSON.parse(savedData);
+                }
+                renderCards();
+            } catch (error) {
+                console.error('Erro ao carregar os dados salvos:', error);
+                renderCards();
+            }
+        }
+
+        // Função para atualizar o resumo
+        function updateSummary(data = characterData) {
+            const totalChars = data.length;
+            
+            let totalItems = 0;
+            let totalValue = 0;
+            let totalTc = 0;
+            
+            data.forEach(char => {
+                const qty = parseInt(char['Quantidade Atual']) || 0;
+                totalItems += qty;
+                
+                const total = parseFormattedNumber(char['Total']);
+                totalValue += total;
+                
+                const tc = parseFormattedNumber(char['Quantas TC']);
+                totalTc += tc;
+            });
+            
+            totalCharsElement.textContent = totalChars;
+            totalItemsElement.textContent = formatNumber(totalItems);
+            totalValueElement.textContent = formatNumber(totalValue);
+            totalTcElement.textContent = formatNumber(totalTc.toFixed(2));
+        }
+
+        // Event listeners para os botões de filtro
+        btnAll.addEventListener('click', () => {
+            btnAll.classList.add('active');
+            btnWithItems.classList.remove('active');
+            btnWithoutItems.classList.remove('active');
+            currentFilter = 'all';
+            renderCards();
+        });
+
+        btnWithItems.addEventListener('click', () => {
+            btnAll.classList.remove('active');
+            btnWithItems.classList.add('active');
+            btnWithoutItems.classList.remove('active');
+            currentFilter = 'with-items';
+            renderCards();
+        });
+
+        btnWithoutItems.addEventListener('click', () => {
+            btnAll.classList.remove('active');
+            btnWithItems.classList.remove('active');
+            btnWithoutItems.classList.add('active');
+            currentFilter = 'without-items';
+            renderCards();
+        });
+
+        // Event listener para o campo de busca
+        searchInput.addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            renderCards();
+        });
+
+        // Event listener para o botão de toggle das instruções
+        toggleInstructions.addEventListener('click', () => {
+            const isVisible = instructionsDiv.style.display !== 'none';
+            if (isVisible) {
+                instructionsDiv.style.display = 'none';
+                toggleInstructions.textContent = 'Mostrar instruções';
+            } else {
+                instructionsDiv.style.display = 'block';
+                toggleInstructions.textContent = 'Ocultar instruções';
+            }
+        });
+
+        // Event listener para o botão de adicionar personagem
+        btnAddChar.addEventListener('click', addCharacter);
+
+        // Event listeners para o modal de edição
+        closeModal.addEventListener('click', closeEditModal);
+        btnCancelEdit.addEventListener('click', closeEditModal);
+        btnSaveEdit.addEventListener('click', saveEditChanges);
+
+        // Fecha o modal se o usuário clicar fora dele
+        window.addEventListener('click', (e) => {
+            if (e.target === editModal) {
+                closeEditModal();
+            }
+        });
+
+        // Inicializa a aplicação
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSavedData();
+        });
+    </script>
+</body>
+</html>
