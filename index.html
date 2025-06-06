@@ -77,7 +77,7 @@
         .btn-add-char:hover { opacity: 0.9; transform: translateY(-2px); }
 
         /* Modal */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); overflow: auto; align-items: center; justify-content: center; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
         .modal-content { background-color: white; margin: auto; padding: 25px; border-radius: var(--border-radius); box-shadow: 0 5px 20px rgba(0,0,0,0.25); width: 90%; max-width: 500px; animation: modalFadeIn 0.3s; }
         @keyframes modalFadeIn { from {opacity: 0; transform: translateY(-50px);} to {opacity: 1; transform: translateY(0);} }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
@@ -157,7 +157,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Editar Personagem</h3>
-                <span class="close-modal">&times;</span>
+                <span class="close-modal" id="edit-close-btn">&times;</span>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -205,6 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMENTOS DO DOM ---
     const cardsContainer = document.getElementById('cards-container');
     const searchInput = document.getElementById('search-input');
+    const addCharButton = document.getElementById('btn-add-char');
+    
     const filterButtons = {
         all: document.getElementById('btn-all'),
         withItems: document.getElementById('btn-with-items'),
@@ -221,23 +223,17 @@ document.addEventListener('DOMContentLoaded', () => {
         name: document.getElementById('new-char-name'),
         wolfPrice: document.getElementById('new-char-wolf-price'),
         tcPrice: document.getElementById('new-char-tc-price'),
-        addButton: document.getElementById('btn-add-char'),
     };
-    const editModal = {
+    const editModalElements = {
         modal: document.getElementById('edit-modal'),
         server: document.getElementById('edit-char-server'),
         name: document.getElementById('edit-char-name'),
         wolfPrice: document.getElementById('edit-char-wolf-price'),
         tcPrice: document.getElementById('edit-char-tc-price'),
-        saveButton: document.getElementById('btn-save-edit'),
-        cancelButton: document.getElementById('btn-cancel-edit'),
-        closeButton: document.querySelector('#edit-modal .close-modal'),
     };
-    const confirmRemoveModal = {
+    const confirmRemoveModalElements = {
         modal: document.getElementById('confirm-remove-modal'),
         text: document.getElementById('confirm-modal-text'),
-        confirmButton: document.getElementById('btn-confirm-remove'),
-        cancelButton: document.getElementById('btn-cancel-remove'),
     };
 
     // --- ESTADO DA APLICAÇÃO ---
@@ -247,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let charToEditId = null;
     let charToRemoveId = null;
 
-    // --- DADOS INICIAIS (A SEREM SUBSTITUÍDOS PELO LOCALSTORAGE) ---
+    // --- DADOS INICIAIS ---
     const initialData = [
         { id: "collabra-zwakka-ironman", servidor: "Collabra", personagem: "Zwakka Ironman", qty: 2, wolfPrice: 11305, tcPrice: 41237 },
         { id: "rasteibra-barba-medieval", servidor: "Rasteibra", personagem: "Barba Medieval", qty: 0, wolfPrice: 11319, tcPrice: 34840 },
@@ -258,50 +254,34 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // --- FUNÇÕES DE LÓGICA E CÁLCULO ---
-
-    const formatNumber = (num, decimals = 0) => {
-        return new Intl.NumberFormat('pt-BR', {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals,
-        }).format(num);
-    };
+    const formatNumber = (num, decimals = 0) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(num);
 
     const calculateDerivedValues = (char) => {
         const metaValue = char.wolfPrice * 25;
         const totalValue = char.qty * char.wolfPrice;
         const tcValue = char.tcPrice > 0 ? totalValue / char.tcPrice : 0;
         const remainingValue = metaValue - totalValue;
-        
-        return {
-            meta: metaValue,
-            total: totalValue,
-            quantasTC: tcValue,
-            faltam: remainingValue,
-        };
+        return { meta: metaValue, total: totalValue, quantasTC: tcValue, faltam: remainingValue };
     };
 
-    const saveData = () => {
-        localStorage.setItem('tibiaWinterWolfData', JSON.stringify(characterData));
-    };
+    const saveData = () => localStorage.setItem('tibiaWinterWolfDataV2', JSON.stringify(characterData));
 
     const loadData = () => {
-        const savedData = localStorage.getItem('tibiaWinterWolfData');
-        if (savedData && JSON.parse(savedData).length > 0) {
-            characterData = JSON.parse(savedData);
-        } else {
+        try {
+            const savedData = localStorage.getItem('tibiaWinterWolfDataV2');
+            characterData = savedData ? JSON.parse(savedData) : initialData;
+        } catch {
             characterData = initialData;
         }
         render();
     };
 
     // --- FUNÇÕES DE RENDERIZAÇÃO E UI ---
-
     const createCharacterCard = (char) => {
         const derived = calculateDerivedValues(char);
         const card = document.createElement('div');
         card.className = 'card';
         card.dataset.id = char.id;
-
         card.innerHTML = `
             <div class="card-header">
                 <h2>${char.personagem}</h2>
@@ -310,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="card-body">
                 <div class="info-row"><span class="label">Quantidade Atual:</span><span class="value">${formatNumber(char.qty)}</span></div>
-                <div class="info-row"><span class="label">Preço Winter Wolf Fur:</span><span class="value">${formatNumber(derived.total > 0 ? char.wolfPrice : 0)}</span></div>
+                <div class="info-row"><span class="label">Preço Winter Wolf Fur:</span><span class="value">${formatNumber(char.wolfPrice)}</span></div>
                 <div class="info-row"><span class="label">Preço Tibia Coins:</span><span class="value">${formatNumber(char.tcPrice)}</span></div>
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
                 <div class="info-row"><span class="label">Total (GP):</span><span class="value">${formatNumber(derived.total)}</span></div>
@@ -324,15 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="card-actions">
                 <button class="btn-remove">Remover Personagem</button>
-            </div>
-        `;
-
-        // Adicionar event listeners para os botões do card
-        card.querySelector('.edit-btn').addEventListener('click', () => openEditModal(char.id));
-        card.querySelector('.btn-increment').addEventListener('click', () => updateQuantity(char.id, 1));
-        card.querySelector('.btn-decrement').addEventListener('click', () => updateQuantity(char.id, -1));
-        card.querySelector('.btn-remove').addEventListener('click', () => openConfirmRemoveModal(char.id));
-
+            </div>`;
         return card;
     };
 
@@ -341,7 +313,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalItems = characterData.reduce((sum, char) => sum + char.qty, 0);
         const totalValue = characterData.reduce((sum, char) => sum + calculateDerivedValues(char).total, 0);
         const totalTc = characterData.reduce((sum, char) => sum + calculateDerivedValues(char).quantasTC, 0);
-
         summaryElements.totalItems.textContent = formatNumber(totalItems);
         summaryElements.totalValue.textContent = formatNumber(totalValue);
         summaryElements.totalTc.textContent = formatNumber(totalTc, 2);
@@ -350,25 +321,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const render = () => {
         cardsContainer.innerHTML = '';
         const filteredData = characterData.filter(char => {
-            const matchesFilter = (currentFilter === 'all') ||
-                (currentFilter === 'withItems' && char.qty > 0) ||
-                (currentFilter === 'withoutItems' && char.qty === 0);
-            
+            const matchesFilter = (currentFilter === 'all') || (currentFilter === 'withItems' && char.qty > 0) || (currentFilter === 'withoutItems' && char.qty === 0);
             const lowerSearchTerm = searchTerm.toLowerCase();
-            const matchesSearch = !searchTerm ||
-                char.personagem.toLowerCase().includes(lowerSearchTerm) ||
-                char.servidor.toLowerCase().includes(lowerSearchTerm);
-
+            const matchesSearch = !searchTerm || char.personagem.toLowerCase().includes(lowerSearchTerm) || char.servidor.toLowerCase().includes(lowerSearchTerm);
             return matchesFilter && matchesSearch;
         });
-
-        filteredData.forEach(char => cardsContainer.appendChild(createCharacterCard(char)));
+        if (filteredData.length === 0) {
+            cardsContainer.innerHTML = `<p style="text-align: center; grid-column: 1 / -1; color: #777;">Nenhum personagem encontrado.</p>`;
+        } else {
+            filteredData.forEach(char => cardsContainer.appendChild(createCharacterCard(char)));
+        }
         updateSummary();
         updateFilterButtons();
     };
     
     // --- FUNÇÕES DE MANIPULAÇÃO DE DADOS ---
-
     const handleAddCharacter = () => {
         const server = addCharForm.server.value.trim();
         const name = addCharForm.name.value.trim();
@@ -399,40 +366,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateQuantity = (id, change) => {
         const char = characterData.find(c => c.id === id);
         if (char) {
-            const newQty = char.qty + change;
-            char.qty = Math.max(0, newQty); // Não permite quantidade negativa
+            char.qty = Math.max(0, char.qty + change);
             saveData();
             render();
         }
     };
     
     // --- MODAL DE EDIÇÃO ---
-
     const openEditModal = (id) => {
         const char = characterData.find(c => c.id === id);
         if (char) {
             charToEditId = id;
-            editModal.server.value = char.servidor;
-            editModal.name.value = char.personagem;
-            editModal.wolfPrice.value = char.wolfPrice;
-            editModal.tcPrice.value = char.tcPrice;
-            editModal.modal.style.display = 'flex';
+            editModalElements.server.value = char.servidor;
+            editModalElements.name.value = char.personagem;
+            editModalElements.wolfPrice.value = char.wolfPrice;
+            editModalElements.tcPrice.value = char.tcPrice;
+            editModalElements.modal.style.display = 'flex';
         }
     };
 
     const closeEditModal = () => {
-        editModal.modal.style.display = 'none';
+        editModalElements.modal.style.display = 'none';
         charToEditId = null;
     };
 
     const handleSaveEdit = () => {
         if (!charToEditId) return;
-
         const char = characterData.find(c => c.id === charToEditId);
-        const server = editModal.server.value.trim();
-        const name = editModal.name.value.trim();
-        const wolfPrice = parseFloat(editModal.wolfPrice.value) || 0;
-        const tcPrice = parseFloat(editModal.tcPrice.value) || 0;
+        const server = editModalElements.server.value.trim();
+        const name = editModalElements.name.value.trim();
+        const wolfPrice = parseFloat(editModalElements.wolfPrice.value) || 0;
+        const tcPrice = parseFloat(editModalElements.tcPrice.value) || 0;
 
         if (!server || !name || wolfPrice <= 0 || tcPrice <= 0) {
             alert("Por favor, preencha todos os campos com valores válidos.");
@@ -457,18 +421,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // --- MODAL DE REMOÇÃO ---
-
     const openConfirmRemoveModal = (id) => {
         const char = characterData.find(c => c.id === id);
         if (char) {
             charToRemoveId = id;
-            confirmRemoveModal.text.textContent = `Tem certeza que deseja remover ${char.personagem} de ${char.servidor}?`;
-            confirmRemoveModal.modal.style.display = 'flex';
+            confirmRemoveModalElements.text.textContent = `Tem certeza que deseja remover ${char.personagem} de ${char.servidor}?`;
+            confirmRemoveModalElements.modal.style.display = 'flex';
         }
     };
 
     const closeConfirmRemoveModal = () => {
-        confirmRemoveModal.modal.style.display = 'none';
+        confirmRemoveModalElements.modal.style.display = 'none';
         charToRemoveId = null;
     };
 
@@ -481,43 +444,52 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- FILTROS E BUSCA ---
-
     const updateFilterButtons = () => {
-        for (const key in filterButtons) {
-            filterButtons[key].classList.remove('active');
+        Object.values(filterButtons).forEach(btn => btn.classList.remove('active'));
+        filterButtons[currentFilter].classList.add('active');
+    };
+    
+    // --- GERENCIADOR CENTRAL DE EVENTOS (EVENT DELEGATION) ---
+    document.body.addEventListener('click', (e) => {
+        // Clicks nos cards
+        const card = e.target.closest('.card');
+        if (card) {
+            const cardId = card.dataset.id;
+            if (e.target.matches('.edit-btn')) openEditModal(cardId);
+            if (e.target.matches('.btn-increment')) updateQuantity(cardId, 1);
+            if (e.target.matches('.btn-decrement')) updateQuantity(cardId, -1);
+            if (e.target.matches('.btn-remove')) openConfirmRemoveModal(cardId);
+            return;
         }
-        filterButtons[currentFilter === 'all' ? 'all' : (currentFilter === 'withItems' ? 'withItems' : 'withoutItems')].classList.add('active');
-    };
-    
-    const setFilter = (filter) => {
-        currentFilter = filter;
-        render();
-    };
 
-    // --- EVENT LISTENERS ---
-    
-    addCharForm.addButton.addEventListener('click', handleAddCharacter);
-    
-    editModal.saveButton.addEventListener('click', handleSaveEdit);
-    editModal.cancelButton.addEventListener('click', closeEditModal);
-    editModal.closeButton.addEventListener('click', closeEditModal);
+        // Clicks nos modais e filtros
+        switch (e.target.id) {
+            case 'btn-add-char': handleAddCharacter(); break;
+            // Filtros
+            case 'btn-all': currentFilter = 'all'; render(); break;
+            case 'btn-with-items': currentFilter = 'withItems'; render(); break;
+            case 'btn-without-items': currentFilter = 'withoutItems'; render(); break;
+            // Modal de Edição
+            case 'btn-save-edit': handleSaveEdit(); break;
+            case 'btn-cancel-edit':
+            case 'edit-close-btn':
+                closeEditModal();
+                break;
+            // Modal de Remoção
+            case 'btn-confirm-remove': handleRemoveCharacter(); break;
+            case 'btn-cancel-remove': closeConfirmRemoveModal(); break;
+        }
 
-    confirmRemoveModal.confirmButton.addEventListener('click', handleRemoveCharacter);
-    confirmRemoveModal.cancelButton.addEventListener('click', closeConfirmRemoveModal);
-    
-    filterButtons.all.addEventListener('click', () => setFilter('all'));
-    filterButtons.withItems.addEventListener('click', () => setFilter('withItems'));
-    filterButtons.withoutItems.addEventListener('click', () => setFilter('withoutItems'));
-    
+        // Fechar modal ao clicar no fundo
+        if (e.target.matches('.modal')) {
+            closeEditModal();
+            closeConfirmRemoveModal();
+        }
+    });
+
     searchInput.addEventListener('input', (e) => {
         searchTerm = e.target.value;
         render();
-    });
-
-    // Fechar modais ao clicar fora
-    window.addEventListener('click', (e) => {
-        if (e.target === editModal.modal) closeEditModal();
-        if (e.target === confirmRemoveModal.modal) closeConfirmRemoveModal();
     });
 
     // --- INICIALIZAÇÃO ---
